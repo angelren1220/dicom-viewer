@@ -3,17 +3,6 @@ import os
 import sys
 import traceback
 from PIL import Image
-
-import sys
-import os
-
-# Find and add GDCM's Python bindings to the path
-gdcm_path = "/opt/homebrew/Cellar/gdcm/3.0.24/lib/python3.9/site-packages"
-if os.path.exists(gdcm_path):
-    sys.path.append(gdcm_path)
-else:
-    print("❌ GDCM path not found:", gdcm_path)
-
 import pydicom
 from pydicom import config
 import pydicom.pixel_data_handlers.gdcm_handler
@@ -26,10 +15,6 @@ config.use_handlers = [
     pydicom.pixel_data_handlers.pillow_handler
 ]
 
-print("✅ GDCM Path Added to Python:", gdcm_path)
-
-
-
 # Get the uploaded file
 dicom_file = sys.argv[1]
 output_folder = "converted"
@@ -41,10 +26,25 @@ try:
     print(f"✅ Successfully read DICOM file: {dicom_file}")
 except Exception as e:
     print("❌ Error reading DICOM file:")
-    traceback.print_exc()  # Prints full error details
+    traceback.print_exc()
     sys.exit(1)
 
-# Check if the DICOM contains image data (PixelData)
+# 🔍 **Step 1: Check if the DICOM file is a PDF**
+if dcm.SOPClassUID == "1.2.840.10008.5.1.4.1.1.104.1" and hasattr(dcm, "EncapsulatedDocument"):
+    try:
+        pdf_path = os.path.join(output_folder, os.path.basename(dicom_file) + ".pdf")
+        with open(pdf_path, "wb") as f:
+            f.write(dcm.EncapsulatedDocument)
+
+        print(f"✅ Extracted PDF saved to: {pdf_path}")
+        print(os.path.basename(pdf_path))  # Return filename for backend
+        sys.exit(0)  # Exit since we are not processing an image
+    except Exception as e:
+        print("❌ Error processing DICOM PDF:")
+        traceback.print_exc()
+        sys.exit(1)
+
+# 🔍 **Step 2: Process the DICOM file as an image**
 if not hasattr(dcm, "PixelData"):
     print("❌ Error: No PixelData found in this DICOM file. It may not be an image.")
     sys.exit(1)

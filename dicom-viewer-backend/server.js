@@ -1,5 +1,5 @@
 require("dotenv").config();
-const PYTHON_PATH = process.env.PYTHON_PATH || "/usr/bin/python3";
+const PYTHON_PATH = process.env.PYTHON_PATH;
 
 const express = require("express");
 const cors = require("cors");
@@ -25,7 +25,13 @@ app.post("/upload", upload.single("dicomdir"), (req, res) => {
   const dicomdirPath = req.file.path;
 
   // Convert DICOM to PNG using Python
+  console.log(`🚀 Using Python from: ${PYTHON_PATH}`);
+  exec(`${PYTHON_PATH} -c "import sys; print(sys.executable)"`, (error, stdout, stderr) => {
+      console.log("🔍 Python Executable:", stdout.trim());
+  });
+  
   exec(`${PYTHON_PATH} convert.py ${dicomdirPath}`, (error, stdout, stderr) => {
+  
     console.log("🔍 Python Script Output:\n", stdout);
     console.error("🚨 Python Script Errors:\n", stderr);
 
