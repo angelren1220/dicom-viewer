@@ -1,0 +1,33 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Python dependencies
+__pycache__/
+*.pyc
+.venv/
+.env
+
+# Logs
+logs/
+*.log
+
+# IDE-specific files
+.vscode/
+.DS_Store
+
+# Build and compiled files
+dist/
+build/
+out/
+
+# Uploaded files & Converted images
+dicom-viewer-backend/uploads/
+dicom-viewer-backend/converted/
+
+# Sensitive Configurations
+*.pem
+*.key
+config.json
+.env.local
